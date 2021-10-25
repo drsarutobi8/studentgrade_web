@@ -15,7 +15,7 @@ class NativeAuthManager extends AuthManager {
   @override
   Map<String, dynamic> getJsonObjects() => _jsonObjects;
 
-  urlLauncher(String url) async {
+  Future<void> urlLauncher(String url) async {
     if (await canLaunch(url)) {
       await launch(url, forceWebView: true);
     } else {

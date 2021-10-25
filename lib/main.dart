@@ -5,7 +5,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'auth_manager.dart';
+import 'auth/auth_manager.dart';
+import 'model/student.dart';
+import 'model/student_info.dart';
 
 const FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
@@ -131,6 +133,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final AuthManager _authManager = AuthManager.instance;
+  final StudentRouterDelegate _routerDelegate = StudentRouterDelegate();
+  final StudentRouteInformationParser _routeInformationParser =
+      StudentRouteInformationParser();
 
   bool _isBusy = false;
   bool _isLoggedIn = false;
@@ -140,20 +145,10 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Keycloak Demo',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Keycloak Demo'),
-        ),
-        body: Center(
-          child: _isBusy
-              ? const CircularProgressIndicator()
-              : _isLoggedIn
-                  ? Profile(logoutAction, _name, _picture)
-                  : Login(loginAction, _errorMessage),
-        ),
-      ),
+      routerDelegate: _routerDelegate,
+      routeInformationParser: _routeInformationParser,
     );
   }
 
@@ -232,5 +227,219 @@ class _MyAppState extends State<MyApp> {
       debugPrint('error on refresh token: $e - stack: $s');
       await logoutAction();
     } //catch
+  }
+}
+
+class StudentRouteInformationParser
+    extends RouteInformationParser<StudentRoutePath> {
+  @override
+  Future<StudentRoutePath> parseRouteInformation(
+      RouteInformation routeInformation) async {
+    final Uri uri = Uri.parse(routeInformation.location);
+
+    if (uri.pathSegments.length >= 2) {
+      final String remaining = uri.pathSegments[1];
+      return StudentRoutePath.details(int.tryParse(remaining));
+    } else {
+      return StudentRoutePath.home();
+    }
+  }
+
+  @override
+  RouteInformation restoreRouteInformation(StudentRoutePath configuration) {
+    if (configuration.isHomePage) {
+      return const RouteInformation(location: '/');
+    } else {
+      if (configuration.isDetailsPage) {
+        return RouteInformation(location: '/student/${configuration.id}');
+      } //if
+    } //else
+    return null;
+  }
+}
+
+class StudentRouterDelegate extends RouterDelegate<StudentRoutePath>
+    with ChangeNotifier, PopNavigatorRouterDelegateMixin<StudentRoutePath> {
+  @override
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  Student _selectedStudent;
+
+  List<Student> students = [
+    Student('abc', 'st1', 'John Doe', 15, Gender.MALE),
+    Student('abc', 'st2', 'Jane Doe', 16, Gender.FEMALE),
+    Student('abc', 'st3', 'Jimmy Doe', 15, Gender.MALE),
+    Student('abc', 'st4', 'Jade Doe', 14, Gender.FEMALE),
+  ];
+
+  StudentRouterDelegate() : navigatorKey = GlobalKey<NavigatorState>();
+
+  @override
+  StudentRoutePath get currentConfiguration => _selectedStudent == null
+      ? StudentRoutePath.home()
+      : StudentRoutePath.details(students.indexOf(_selectedStudent));
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      key: navigatorKey,
+      transitionDelegate: NoAnimationTransitionDelegate(),
+      pages: [
+        MaterialPage(
+          key: const ValueKey('StudentsListPage'),
+          child: StudentsListScreen(
+            students: students,
+            onTapped: _handleStudentTapped,
+          ),
+        ),
+        if (_selectedStudent != null)
+          StudentDetailsPage(student: _selectedStudent)
+      ],
+      onPopPage: (route, result) {
+        if (!route.didPop(result)) {
+          return false;
+        }
+
+        // Update the list of pages by setting _selectedStudent to null
+        _selectedStudent = null;
+        notifyListeners();
+
+        return true;
+      },
+    );
+  }
+
+  @override
+  Future<void> setNewRoutePath(StudentRoutePath path) async {
+    if (path.isDetailsPage) {
+      _selectedStudent = students[path.id];
+    }
+  }
+
+  void _handleStudentTapped(Student student) {
+    _selectedStudent = student;
+    notifyListeners();
+  }
+}
+
+class StudentDetailsPage extends Page {
+  final Student student;
+
+  StudentDetailsPage({
+    this.student,
+  }) : super(key: ValueKey(student));
+
+  @override
+  Route createRoute(BuildContext context) {
+    return MaterialPageRoute(
+      settings: this,
+      builder: (BuildContext context) {
+        return StudentDetailsScreen(student: student);
+      },
+    );
+  }
+}
+
+class StudentRoutePath {
+  final int id;
+
+  StudentRoutePath.home() : id = null;
+
+  StudentRoutePath.details(this.id);
+
+  bool get isHomePage => id == null;
+
+  bool get isDetailsPage => id != null;
+}
+
+class StudentsListScreen extends StatelessWidget {
+  final List<Student> students;
+  final ValueChanged<Student> onTapped;
+
+  StudentsListScreen({
+    @required this.students,
+    @required this.onTapped,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: ListView(
+        children: [
+          for (var student in students)
+            ListTile(
+              title: Text(student.name),
+              subtitle: Text(student.gender.toString()),
+              onTap: () => onTapped(student),
+            )
+        ],
+      ),
+    );
+  }
+}
+
+class StudentDetailsScreen extends StatelessWidget {
+  final Student student;
+
+  StudentDetailsScreen({
+    @required this.student,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (student != null) ...[
+              Text(student.name, style: Theme.of(context).textTheme.headline6),
+              Text(student.gender.toString(),
+                  style: Theme.of(context).textTheme.subtitle1),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class NoAnimationTransitionDelegate extends TransitionDelegate<void> {
+  @override
+  Iterable<RouteTransitionRecord> resolve({
+    List<RouteTransitionRecord> newPageRouteHistory,
+    Map<RouteTransitionRecord, RouteTransitionRecord>
+        locationToExitingPageRoute,
+    Map<RouteTransitionRecord, List<RouteTransitionRecord>>
+        pageRouteToPagelessRoutes,
+  }) {
+    final List<RouteTransitionRecord> results = <RouteTransitionRecord>[];
+
+    for (final RouteTransitionRecord pageRoute in newPageRouteHistory) {
+      if (pageRoute.isWaitingForEnteringDecision) {
+        pageRoute.markForAdd();
+      }
+      results.add(pageRoute);
+    }
+
+    for (final RouteTransitionRecord exitingPageRoute
+        in locationToExitingPageRoute.values) {
+      if (exitingPageRoute.isWaitingForExitingDecision) {
+        exitingPageRoute.markForRemove();
+        final List<RouteTransitionRecord> pagelessRoutes =
+            pageRouteToPagelessRoutes[exitingPageRoute];
+        if (pagelessRoutes != null) {
+          for (final RouteTransitionRecord pagelessRoute in pagelessRoutes) {
+            pagelessRoute.markForRemove();
+          }
+        }
+      }
+
+      results.add(exitingPageRoute);
+    }
+    return results;
   }
 }

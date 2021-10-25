@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:openid_client/openid_client_browser.dart';
 
 import 'auth_manager.dart';
@@ -31,7 +30,7 @@ class WebAuthManager extends AuthManager {
     _credential = await _authenticator.credential;
     if (_credential == null) {
       await _authenticator.authorize(); // this will redirect the browser
-
+    } else {
       debugPrint('AFTER LOGIN!!');
       _credential = await _authenticator.credential;
       debugPrint('AFTER LOGIN!! 1');
@@ -41,7 +40,8 @@ class WebAuthManager extends AuthManager {
       debugPrint('AFTER LOGIN!! 3');
       _userInfo = await _credential?.getUserInfo();
       debugPrint('AFTER LOGIN!! 99');
-    } //if
+      await _credential.getUserInfo();
+    }
   }
 
   @override
