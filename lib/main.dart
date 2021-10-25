@@ -8,6 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'auth/auth_manager.dart';
 import 'model/student.dart';
 import 'model/student_info.dart';
+import 'page/student_details_page.dart';
 
 const FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
@@ -319,24 +320,6 @@ class StudentRouterDelegate extends RouterDelegate<StudentRoutePath>
   void _handleStudentTapped(Student student) {
     _selectedStudent = student;
     notifyListeners();
-  }
-}
-
-class StudentDetailsPage extends Page {
-  final Student student;
-
-  StudentDetailsPage({
-    this.student,
-  }) : super(key: ValueKey(student));
-
-  @override
-  Route createRoute(BuildContext context) {
-    return MaterialPageRoute(
-      settings: this,
-      builder: (BuildContext context) {
-        return StudentDetailsScreen(student: student);
-      },
-    );
   }
 }
 
