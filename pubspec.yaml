@@ -1,0 +1,37 @@
+name: fooderlich
+description: a social recipe app to keep track of new dishes, and share with friends.
+
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_colorpicker: ^0.6.0
+  flutter_secure_storage: ^5.0.0-beta.5
+  intl: ^0.17.0
+  google_fonts: ^2.1.0
+  openidconnect: ^1.0.18-Beta.8  
+  provider: ^6.0.0
+  shared_preferences: ^2.0.7
+  smooth_page_indicator: ^1.0.0+2
+  url_launcher: ^6.0.10
+  uuid: ^3.0.4
+  webview_flutter: ^2.0.13
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/food_pics/
+    - assets/magazine_pics/
+    - assets/sample_data/
+    - assets/profile_pics/
+    - assets/fooderlich_assets/
