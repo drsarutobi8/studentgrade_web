@@ -37,33 +37,43 @@ class AppRouter extends RouterDelegate<AppLink>
       key: navigatorKey,
       onPopPage: _handlePopPage,
       pages: [
-        if (!appStateManager.isInitialized) ...[
-          SplashScreen.page(),
-        ] else if (!appStateManager.isLoggedIn) ...[
-          LoginScreen.page(),
-        ] else if (!appStateManager.isOnboardingComplete) ...[
-          OnboardingScreen.page(),
-        ] else ...[
-          Home.page(appStateManager.getSelectedTab),
-          if (groceryManager.isCreatingNewItem)
-            GroceryItemScreen.page(onCreate: (item) {
-              groceryManager.addItem(item);
-            }, onUpdate: (item, index) {
-              // No update
-            }),
-          if (groceryManager.selectedIndex != -1)
-            GroceryItemScreen.page(
-                item: groceryManager.selectedGroceryItem,
-                index: groceryManager.selectedIndex,
-                onCreate: (_) {
-                  // No create
-                },
-                onUpdate: (item, index) {
-                  groceryManager.updateItem(item, index);
+        if (appStateManager.isInitialized) ...[
+          //initialized
+          if (appStateManager.isLoggedIn) ...[
+            //loggedIn
+            if (appStateManager.isOnboardingComplete) ...[
+              //onboardindComplete
+              Home.page(appStateManager.getSelectedTab),
+              if (groceryManager.isCreatingNewItem)
+                GroceryItemScreen.page(onCreate: (item) {
+                  groceryManager.addItem(item);
+                }, onUpdate: (item, index) {
+                  // No update
                 }),
-          if (profileManager.didSelectUser)
-            ProfileScreen.page(profileManager.getUser),
-          if (profileManager.didTapOnRaywenderlich) WebViewScreen.page(),
+              if (groceryManager.selectedIndex != -1)
+                GroceryItemScreen.page(
+                    item: groceryManager.selectedGroceryItem,
+                    index: groceryManager.selectedIndex,
+                    onCreate: (_) {
+                      // No create
+                    },
+                    onUpdate: (item, index) {
+                      groceryManager.updateItem(item, index);
+                    }),
+              if (profileManager.didSelectUser)
+                ProfileScreen.page(profileManager.getUser),
+              if (profileManager.didTapOnRaywenderlich) WebViewScreen.page(),
+            ] else ...[
+              //NOT onboardindComplete
+              OnboardingScreen.page(),
+            ]
+          ] else ...[
+            //NOT loggedIn
+            LoginScreen.page(),
+          ]
+        ] else ...[
+          //NOT initialized
+          SplashScreen.page(),
         ]
       ],
     );

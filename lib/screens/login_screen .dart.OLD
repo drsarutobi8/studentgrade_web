@@ -1,0 +1,403 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+//import 'package:provider/provider.dart';
+
+import '../models/models.dart';
+// import '../auth/auth_manager.dart';
+import 'package:openidconnect/openidconnect.dart';
+import '../auth/credentials.dart';
+
+class LoginScreen extends StatefulWidget {
+  static MaterialPage page() {
+    return MaterialPage(
+      name: FooderlichPages.loginPath,
+      key: ValueKey(FooderlichPages.loginPath),
+      child: const LoginScreen(),
+    );
+  }
+
+  final String? username;
+
+  const LoginScreen({
+    Key? key,
+    this.username,
+  }) : super(key: key);
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  String discoveryUrl = AUTH_DISCOVERY;
+  OpenIdConfiguration? discoveryDocument;
+  AuthorizationResponse? response;
+  OpenIdIdentity? identity;
+
+  bool usePopup = AUTH_USE_POPUP;
+  String? errorMessage = null;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('OpenIdConnect Code Flow with PKCE Example'),
+      ),
+      body: Center(
+        child: Form(
+          key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: Column(
+            children: [
+              TextFormField(
+                textInputAction: TextInputAction.done,
+                decoration: InputDecoration(labelText: 'Discovery Url'),
+                keyboardType: TextInputType.url,
+                initialValue: discoveryUrl,
+                onChanged: (value) => discoveryUrl = value,
+                validator: (value) {
+                  const errorMessage =
+                      'Please enter a valid openid discovery document url';
+                  if (value == null || value.isEmpty) return errorMessage;
+                  try {
+                    Uri.parse(value);
+                    return null;
+                  } on Exception catch (e) {
+                    print(e.toString());
+                    return errorMessage;
+                  }
+                },
+              ),
+              TextButton.icon(
+                onPressed: () async {
+                  _formKey.currentState!.save();
+                  if (!_formKey.currentState!.validate()) return;
+
+                  try {
+                    final configuration =
+                        await OpenIdConnect.getConfiguration(discoveryUrl);
+                    setState(() {
+                      discoveryDocument = configuration;
+                      errorMessage = null;
+                    });
+                  } on Exception catch (e) {
+                    setState(() {
+                      errorMessage = e.toString();
+                      discoveryDocument = null;
+                    });
+                  }
+                },
+                icon: Icon(Icons.search),
+                label: Text('Lookup OpenId Connect Configuration'),
+              ),
+              Visibility(
+                child: SwitchListTile.adaptive(
+                  value: usePopup,
+                  title: Text('Use Web Popup'),
+                  onChanged: (value) {
+                    setState(() {
+                      usePopup = value;
+                    });
+                  },
+                ),
+                visible: kIsWeb,
+              ),
+              Visibility(
+                child: TextButton.icon(
+                  onPressed: () async {
+                    try {
+                      final _response =
+                          await OpenIdConnect.authorizeInteractive(
+                        context: context,
+                        title: 'Login',
+                        request: await InteractiveAuthorizationRequest.create(
+                          clientId: AUTH_CLIENT_ID,
+                          // clientSecret: defaultClientSecret,
+                          redirectUrl: REDIRECT_URL,
+                          scopes: AUTH_SCOPES,
+                          configuration: discoveryDocument!,
+                          autoRefresh: true,
+                          useWebPopup: usePopup,
+                        ),
+                      );
+                      setState(() {
+                        response = _response;
+                        identity =
+                            OpenIdIdentity.fromAuthorizationResponse(response!);
+                        errorMessage = null;
+                      });
+                    } on Exception catch (e) {
+                      setState(() {
+                        errorMessage = e.toString();
+                        response = null;
+                        identity = null;
+                      });
+                    }
+                  },
+                  icon: Icon(Icons.login),
+                  label: Text('Login'),
+                ),
+                visible: discoveryDocument != null && identity == null,
+              ),
+              Visibility(
+                child: identity == null ? Container() : IdentityView(identity!),
+                visible: identity != null,
+              ),
+              Visibility(
+                child: identity == null ? Container() : UserInfoView(identity!),
+                visible: identity != null,
+              ),
+              Visibility(
+                child: TextButton.icon(
+                  onPressed: () async {
+                    OpenIdConnect.logout(
+                      request: LogoutRequest(
+                        idToken: identity!.idToken,
+                        configuration: discoveryDocument!,
+                      ),
+                    );
+                    setState(() {
+                      identity = null;
+                    });
+                  },
+                  icon: Icon(Icons.logout),
+                  label: Text('Logout'),
+                ),
+                visible: identity != null,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // final AuthManager _authManager = AuthManager.instance;
+
+  // final Color rwColor = const Color.fromRGBO(64, 143, 77, 1);
+
+  // final TextStyle focusedStyle = const TextStyle(color: Colors.green);
+
+  // final TextStyle unfocusedStyle = const TextStyle(color: Colors.grey);
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     body: Padding(
+  //       padding: const EdgeInsets.all(16.0),
+  //       child: Center(
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.stretch,
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           children: [
+  //             const SizedBox(
+  //               height: 200,
+  //               child: Image(
+  //                 image: AssetImage('assets/fooderlich_assets/rw_logo.png'),
+  //               ),
+  //             ),
+  //             const SizedBox(height: 16),
+  //             buildTextfield(widget.username ?? '🍔 username'),
+  //             const SizedBox(height: 16),
+  //             buildTextfield('🎹 password'),
+  //             const SizedBox(height: 16),
+  //             buildButton(context),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  // Widget buildButton(BuildContext context) {
+  //   return SizedBox(
+  //     height: 55,
+  //     child: MaterialButton(
+  //       color: rwColor,
+  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+  //       child: const Text(
+  //         'Login',
+  //         style: TextStyle(color: Colors.white),
+  //       ),
+  //       onPressed: () async {
+  //         _authManager.login(context);
+  //         //Provider.of<AppStateManager>(context, listen: false).login(context);
+  //         setState(() {
+  //           print('setState 999 isLoggedIn=${_authManager.isLoggedIn()}');
+  //         });
+  //       },
+  //     ),
+  //   );
+  // }
+
+  // Widget buildTextfield(String hintText) {
+  //   return TextField(
+  //     cursorColor: rwColor,
+  //     decoration: InputDecoration(
+  //       border: const OutlineInputBorder(
+  //         borderSide: BorderSide(
+  //           color: Colors.green,
+  //           width: 1.0,
+  //         ),
+  //       ),
+  //       focusedBorder: const OutlineInputBorder(
+  //         borderSide: BorderSide(color: Colors.green),
+  //       ),
+  //       hintText: hintText,
+  //       hintStyle: const TextStyle(height: 0.5),
+  //     ),
+  //   );
+  // }
+}
+
+class IdentityView extends StatelessWidget {
+  final AuthorizationResponse identity;
+  IdentityView(this.identity);
+
+  @override
+  Widget build(BuildContext context) {
+    final captionTheme = Theme.of(context).textTheme.caption;
+    return Padding(
+      padding: EdgeInsets.all(15),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Access Token:',
+                  softWrap: true,
+                  style: captionTheme,
+                ),
+                Text(
+                  identity.accessToken,
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  'Identity Token:',
+                  style: captionTheme,
+                ),
+                Text(
+                  identity.idToken,
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  'Token Type:',
+                  style: captionTheme,
+                ),
+                Text(
+                  identity.tokenType,
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  'Expires At:',
+                  style: captionTheme,
+                ),
+                Text(
+                  identity.expiresAt.toIso8601String(),
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  'Refresh Token:',
+                  style: captionTheme,
+                ),
+                Text(
+                  identity.refreshToken ?? 'Not included',
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  'State:',
+                  style: captionTheme,
+                ),
+                Text(
+                  identity.state ?? 'Not Included',
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  'Additional Properties:',
+                  style: captionTheme,
+                ),
+                SelectableText(
+                  identity.additionalProperties?.toString() ?? 'Not Included',
+                )
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class UserInfoView extends StatelessWidget {
+  final OpenIdIdentity openIdIdentity;
+  UserInfoView(this.openIdIdentity);
+
+  @override
+  Widget build(BuildContext context) {
+    final captionTheme = Theme.of(context).textTheme.caption;
+    return Padding(
+      padding: EdgeInsets.all(15),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Full Name:',
+                  softWrap: true,
+                  style: captionTheme,
+                ),
+                SelectableText(
+                  openIdIdentity.fullName!,
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  'User Name:',
+                  style: captionTheme,
+                ),
+                SelectableText(
+                  openIdIdentity.userName!,
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  'Claims:',
+                  style: captionTheme,
+                ),
+                SelectableText(openIdIdentity.claims.toString())
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

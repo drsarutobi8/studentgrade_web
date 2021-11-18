@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:openidconnect/openidconnect.dart';
 import 'app_cache.dart';
-import '../auth/auth_manager.dart';
 
 class FooderlichTab {
   static const int explore = 0;
@@ -11,11 +11,11 @@ class FooderlichTab {
 }
 
 class AppStateManager extends ChangeNotifier {
-  final AuthManager _authManager = AuthManager.instance;
   bool _initialized = false;
   bool _loggedIn = false;
   bool _onboardingComplete = false;
   int _selectedTab = FooderlichTab.explore;
+  OpenIdIdentity? _identity;
   final _appCache = AppCache();
 
   bool get isInitialized => _initialized;
@@ -24,8 +24,8 @@ class AppStateManager extends ChangeNotifier {
   int get getSelectedTab => _selectedTab;
 
   void initializeApp() async {
-    _loggedIn = await _appCache.isUserLoggedIn();
-    _onboardingComplete = await _appCache.didCompleteOnboarding();
+    //_loggedIn = await _appCache.isUserLoggedIn();
+    //_onboardingComplete = await _appCache.didCompleteOnboarding();
 
     Timer(
       const Duration(milliseconds: 2000),
@@ -36,12 +36,15 @@ class AppStateManager extends ChangeNotifier {
     );
   }
 
-  void login(BuildContext _context) async {
-    _authManager.login(_context);
-    print('DDDD after popup login');
-    _loggedIn = _authManager.isLoggedIn();
-    await _appCache.cacheUser();
-    notifyListeners();
+  void login(OpenIdIdentity? newIdentity) async {
+    if (newIdentity != null) {
+      _identity = newIdentity;
+      _identity!.save();
+      _loggedIn = true;
+      print('setState 999 ${_identity!.accessToken}');
+      await _appCache.cacheUser();
+      notifyListeners();
+    } //if
   }
 
   void completeOnboarding() async {
@@ -61,7 +64,7 @@ class AppStateManager extends ChangeNotifier {
   }
 
   void logout() async {
-    _authManager.logout();
+    _identity = null;
     _initialized = false;
     _selectedTab = 0;
     await _appCache.invalidate();
