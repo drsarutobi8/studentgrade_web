@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:openidconnect/openidconnect.dart';
 
 import '../components/circle_image.dart';
 import '../models/models.dart';

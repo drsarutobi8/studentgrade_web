@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:openidconnect/openidconnect.dart';
 
 import 'models.dart';
 
 class ProfileManager extends ChangeNotifier {
+  OpenIdIdentity? _identity;
+
   User get getUser => User(
-        firstName: 'Stef',
-        lastName: 'Patt',
+        firstName: _identity!.givenName ?? '',
+        lastName: _identity!.familyName ?? '',
         role: 'Flutterista',
         profileImageUrl: 'assets/profile_pics/person_stef.jpeg',
         points: 100,
@@ -30,7 +33,13 @@ class ProfileManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void tapOnProfile(bool selected) {
+  void tapOnProfile(bool selected) async {
+    if (selected) {
+      _identity = await OpenIdIdentity.load();
+    } else {
+      _identity = null;
+    } //else
+
     _didSelectUser = selected;
     notifyListeners();
   }
