@@ -28,17 +28,15 @@ class AuthManager {
           autoRefresh: true,
           useWebPopup: AUTH_USE_POPUP,
         ));
-    print('web authorize 99 responseIsNotNull=${_response != null}');
     return OpenIdIdentity.fromAuthorizationResponse(_response!);
   }
 
-  Future<void> logout(String idToken) async {
-    print('starting logout');
-    return _logout(idToken, AUTH_DISCOVERY);
+  Future<void> logout() async {
+    final _identity = await OpenIdIdentity.load();
+    return _logout(_identity!.idToken, AUTH_DISCOVERY);
   }
 
   Future<void> _logout(String idToken, String discoveryUrl) async {
-    print('starting logout');
     final _configuration = await OpenIdConnect.getConfiguration(discoveryUrl);
     await OpenIdConnect.logout(
         request: LogoutRequest(

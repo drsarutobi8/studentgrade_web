@@ -2,9 +2,11 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:openidconnect/openidconnect.dart';
 
 import '../components/circle_image.dart';
 import '../models/models.dart';
+import '../auth/auth_manager.dart';
 
 class ProfileScreen extends StatefulWidget {
   static MaterialPage page(User user) {
@@ -16,6 +18,7 @@ class ProfileScreen extends StatefulWidget {
   }
 
   final User user;
+
   const ProfileScreen({
     Key? key,
     required this.user,
@@ -26,6 +29,8 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final AuthManager _authManager = AuthManager.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,12 +75,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         ListTile(
           title: const Text('Log out'),
-          onTap: () {
-            // 1
-            Provider.of<ProfileManager>(context, listen: false)
-                .tapOnProfile(false);
-            // 2
-            Provider.of<AppStateManager>(context, listen: false).logout();
+          onTap: () async {
+            await _authManager.logout();
+            setState(() {
+              // 1
+              Provider.of<ProfileManager>(context, listen: false)
+                  .tapOnProfile(false);
+              // 2
+              Provider.of<AppStateManager>(context, listen: false).logout();
+            });
           },
         )
       ],

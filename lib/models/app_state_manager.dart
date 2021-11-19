@@ -65,6 +65,7 @@ class AppStateManager extends ChangeNotifier {
 
   void logout() async {
     _identity = null;
+    _loggedIn = false;
     _initialized = false;
     _selectedTab = 0;
     await _appCache.invalidate();
