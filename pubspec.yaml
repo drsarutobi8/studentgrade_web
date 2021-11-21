@@ -8,12 +8,14 @@ environment:
   sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
+  async: ^2.2.0
   flutter:
     sdk: flutter
   flutter_colorpicker: ^0.6.0
-  flutter_secure_storage: ^5.0.0-beta.5
   intl: ^0.17.0
   google_fonts: ^2.1.0
+  grpc: ^3.0.2
+  protobuf: ^2.0.0
   openidconnect: ^1.0.18-Beta.8  
   provider: ^6.0.0
   shared_preferences: ^2.0.7
@@ -30,8 +32,9 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+    - assets/certs/
     - assets/food_pics/
-    - assets/magazine_pics/
-    - assets/sample_data/
-    - assets/profile_pics/
     - assets/fooderlich_assets/
+    - assets/magazine_pics/
+    - assets/profile_pics/
+    - assets/sample_data/
