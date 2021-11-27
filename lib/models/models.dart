@@ -8,4 +8,5 @@ export 'grocery_manager.dart';
 export 'post.dart';
 export 'profile_manager.dart';
 export 'simple_recipe.dart';
+import 'student_manager.dart';
 export 'user.dart';

@@ -33,7 +33,10 @@ class AuthManager {
 
   Future<void> logout() async {
     final _identity = await OpenIdIdentity.load();
-    return _logout(_identity!.idToken, AUTH_DISCOVERY);
+    final _userName = _identity!.userName;
+    _logout(_identity.idToken, AUTH_DISCOVERY);
+    print('User $_userName logged out successfully');
+    return;
   }
 
   Future<void> _logout(String idToken, String discoveryUrl) async {

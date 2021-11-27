@@ -41,8 +41,8 @@ class AppStateManager extends ChangeNotifier {
       _identity = newIdentity;
       _identity!.save();
       _loggedIn = true;
-      print('setState 999 ${_identity!.accessToken}');
       await _appCache.cacheUser();
+      print('User $newIdentity.userName logged in successfully');
       notifyListeners();
     } //if
   }

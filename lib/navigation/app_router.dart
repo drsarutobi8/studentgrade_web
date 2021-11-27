@@ -3,17 +3,20 @@ import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../screens/screens.dart';
 import 'app_link.dart';
+import '../models/student_manager.dart';
 
 class AppRouter extends RouterDelegate<AppLink>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin {
   @override
   final GlobalKey<NavigatorState> navigatorKey;
 
+  final StudentManager studentManager;
   final AppStateManager appStateManager;
   final GroceryManager groceryManager;
   final ProfileManager profileManager;
 
   AppRouter({
+    required this.studentManager,
     required this.appStateManager,
     required this.groceryManager,
     required this.profileManager,

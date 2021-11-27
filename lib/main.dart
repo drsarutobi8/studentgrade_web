@@ -3,23 +3,26 @@ import 'package:provider/provider.dart';
 
 import 'fooderlich_theme.dart';
 import 'models/models.dart';
+import 'models/student_manager.dart';
 import 'navigation/app_route_parser.dart';
 import 'navigation/app_router.dart';
 
-void main() {
+void main() async {
   runApp(
-    const Fooderlich(),
+    Fooderlich(),
   );
 }
 
 class Fooderlich extends StatefulWidget {
-  const Fooderlich({Key? key}) : super(key: key);
+  Fooderlich({Key? key}) : super(key: key);
 
   @override
   _FooderlichState createState() => _FooderlichState();
 }
 
 class _FooderlichState extends State<Fooderlich> {
+  final StudentManager _studentManager = StudentManager();
+
   final _groceryManager = GroceryManager();
   final _profileManager = ProfileManager();
   final _appStateManager = AppStateManager();
@@ -30,6 +33,7 @@ class _FooderlichState extends State<Fooderlich> {
   @override
   void initState() {
     _appRouter = AppRouter(
+      studentManager: _studentManager,
       appStateManager: _appStateManager,
       groceryManager: _groceryManager,
       profileManager: _profileManager,
@@ -47,6 +51,9 @@ class _FooderlichState extends State<Fooderlich> {
         ),
         ChangeNotifierProvider(
           create: (context) => _profileManager,
+        ),
+        ChangeNotifierProvider(
+          create: (context) => _studentManager,
         )
       ],
       child: Consumer<ProfileManager>(
