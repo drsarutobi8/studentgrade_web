@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:grpc/grpc.dart';
 import '../models/models.dart';
 import '../models/student_manager.dart';
-import '../grpc_stub/student.pbgrpc.dart';
 import 'explore_screen.dart';
 import 'grocery_screen.dart';
 import 'recipes_screen.dart';

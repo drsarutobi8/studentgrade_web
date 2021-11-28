@@ -9,12 +9,12 @@ import 'navigation/app_router.dart';
 
 void main() async {
   runApp(
-    Fooderlich(),
+    const Fooderlich(),
   );
 }
 
 class Fooderlich extends StatefulWidget {
-  Fooderlich({Key? key}) : super(key: key);
+  const Fooderlich({Key? key}) : super(key: key);
 
   @override
   _FooderlichState createState() => _FooderlichState();

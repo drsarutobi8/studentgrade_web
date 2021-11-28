@@ -1,11 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'package:grpc/grpc.dart';
 import 'package:grpc/grpc_or_grpcweb.dart';
 import 'package:openidconnect/openidconnect.dart';
+
 import '../grpc_stub/student.pbgrpc.dart';
+import '../grpc_network/client_channel_stub.dart'
+    if (dart.library.js) '../grpc_network/client_channel_web.dart'
+    if (dart.library.io) '../grpc_network/client_channel_native.dart';
 
 class StudentManager extends ChangeNotifier {
   StudentServiceClient? _client;
@@ -31,23 +34,7 @@ class StudentManager extends ChangeNotifier {
       'Access-Control-Allow-Methods': '*'
     });
     print('initClient 3');
-    // final clientChannel = GrpcOrGrpcWebClientChannel.toSeparateEndpoints(
-    //     grpcHost: 'localhost',
-    //     grpcPort: 9200,
-    //     grpcTransportSecure: true,
-    //     grpcWebHost: 'localhost',
-    //     grpcWebPort: 9280,
-    //     grpcWebTransportSecure: true);
-    final clientChannel = GrpcOrGrpcWebClientChannel.toSeparatePorts(
-        grpcPort: 9200,
-        grpcTransportSecure: true,
-        grpcWebPort: 9280,
-        grpcWebTransportSecure: false,
-        host: 'localhost');
-    // final channelOptions = await _createChannelOptions();
-    // final clientChannel = GrpcOrGrpcWebClientChannel.grpc('localhost',
-    //    port: 9280, options: channelOptions);
-
+    final clientChannel = await createClientChannel();
     print('initClient 4');
     _client = StudentServiceClient(clientChannel, options: callOptions);
     print('initClient 99 initiated=${_client != null}');
@@ -60,25 +47,6 @@ class StudentManager extends ChangeNotifier {
             {print('${i.current.studentId} = ${i.current.name}')}
         });
     print('initClient 100 initiated=${_client != null}');
-  }
-
-  Future<ChannelOptions> _createChannelOptions() async {
-    final channelCredentials = await _createChannelCredentials();
-    return ChannelOptions(credentials: channelCredentials);
-  }
-
-  Future<ChannelCredentials> _createChannelCredentials() async {
-    final certUint8List = await _readCertificates();
-    return ChannelCredentials.secure(
-        certificates: certUint8List, authority: 'auth.figker.com');
-  }
-
-  Future<List<int>> _readCertificates() async {
-    const _certPath = 'assets/certs/ca.pem';
-    final certByteData = await rootBundle.load(_certPath);
-    final certUint8List = certByteData.buffer
-        .asUint8List(certByteData.offsetInBytes, certByteData.lengthInBytes);
-    return certUint8List.cast<int>();
   }
 
   void hello() {
