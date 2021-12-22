@@ -21,6 +21,7 @@ class AppRouter extends RouterDelegate<AppLink>
     required this.groceryManager,
     required this.profileManager,
   }) : navigatorKey = GlobalKey<NavigatorState>() {
+    studentManager.addListener(notifyListeners);
     appStateManager.addListener(notifyListeners);
     groceryManager.addListener(notifyListeners);
     profileManager.addListener(notifyListeners);
@@ -29,6 +30,7 @@ class AppRouter extends RouterDelegate<AppLink>
   @override
   void dispose() {
     appStateManager.removeListener(notifyListeners);
+    studentManager.removeListener(notifyListeners);
     groceryManager.removeListener(notifyListeners);
     profileManager.removeListener(notifyListeners);
     super.dispose();

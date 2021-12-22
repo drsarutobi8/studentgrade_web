@@ -36,6 +36,13 @@ class AppStateManager extends ChangeNotifier {
     );
   }
 
+  void forceLogin() async {
+    _loggedIn = true;
+    await _appCache.cacheUser();
+    print('FORCED logged in successfully');
+    notifyListeners();
+  }
+
   void login(OpenIdIdentity? newIdentity) async {
     if (newIdentity != null) {
       _identity = newIdentity;

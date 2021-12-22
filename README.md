@@ -4,7 +4,9 @@ A new Flutter project.
 
 ## Getting Started
 
-flutter run -d web-server --web-port=4200
+```
+flutter run -d chrome --web-port=4200 --web-renderer=html
+```
 
 This project is a starting point for a Flutter application.
 

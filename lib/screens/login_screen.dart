@@ -58,9 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
               buildTextfield('🎹 password'),
               const SizedBox(height: 16),
               buildButton(context),
-              // (_identity != null)
-              //     ? Text(_identity!.accessToken)
-              //     : const Text('NOT LOGGED IN'),
             ],
           ),
         ),
@@ -78,12 +75,16 @@ class _LoginScreenState extends State<LoginScreen> {
           'Login',
           style: TextStyle(color: Colors.white),
         ),
-        onPressed: () async {
-          _identity = await _authManager.login(context);
-          setState(() {
-            Provider.of<AppStateManager>(context, listen: false)
-                .login(_identity);
-          });
+        onPressed: () {
+          Provider.of<AppStateManager>(context, listen: false).forceLogin();
+          /* TODO #1 the openidconnect does not working with flutter 2.8.1
+        
+        _identity = await _authManager.login(context);
+        setState(() {
+        Provider.of<AppStateManager>(context, listen: false)
+            .login(_identity);
+        });
+      */
         },
       ),
     );
