@@ -20,6 +20,7 @@ Future<ChannelCredentials> _createChannelCredentials() async {
 }
 
 Future<List<int>> _readCertificates() async {
+  //TODO https://docs.servicestack.net/grpc-flutter#flutter-protoc-grpc-ssl-example
   const _certPath = 'assets/certs/ca.pem';
   final certByteData = await rootBundle.load(_certPath);
   final certUint8List = certByteData.buffer

@@ -1,7 +1,7 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
 export "FLUTTER_ROOT=/home/drsarutobi/snap/flutter/common/flutter"
-export "FLUTTER_APPLICATION_PATH=/home/drsarutobi/projects/flutter.dev/flta-materials/08-deep-links-and-web-URLs/projects/starter"
+export "FLUTTER_APPLICATION_PATH=/home/drsarutobi/projects/studentgrade_web"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_TARGET=lib/main.dart"
 export "FLUTTER_BUILD_DIR=build"

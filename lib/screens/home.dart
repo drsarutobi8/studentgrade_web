@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/models.dart';
-import '../models/student_manager.dart';
 import 'explore_screen.dart';
 import 'grocery_screen.dart';
-import 'recipes_screen.dart';
+//import 'recipes_screen.dart';
+import 'students_screen.dart';
 
 class Home extends StatefulWidget {
   static MaterialPage page(int currentTab) {
@@ -32,13 +32,13 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   static List<Widget> pages = <Widget>[
     ExploreScreen(),
-    RecipesScreen(),
+    const StudentsScreen(),
+    //RecipesScreen(),
     const GroceryScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<StudentManager>(context, listen: false).hello();
     return Consumer<AppStateManager>(
       builder: (
         context,
@@ -74,7 +74,7 @@ class _HomeState extends State<Home> {
               ),
               const BottomNavigationBarItem(
                 icon: Icon(Icons.book),
-                label: 'Recipes',
+                label: 'Students',
               ),
               const BottomNavigationBarItem(
                 icon: Icon(Icons.list),
