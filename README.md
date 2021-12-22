@@ -4,32 +4,33 @@ A new Flutter project.
 
 ## Getting Started
 
+### To make it works with GRPC you need to [Disable CORS](https://stackoverflow.com/questions/65630743/how-to-solve-flutter-web-api-cors-error-only-with-dart-code)
+1. Go to flutter\bin\cache and remove a file named: flutter_tools.stamp
+```sh
+rm ~/snap/flutter/common/flutter/bin/cache/flutter_tools.stamp
+```
+2. Go to flutter\packages\flutter_tools\lib\src\web and open the file chrome.dart. (for linux is at
+```sh
+vi ~/snap/flutter/common/flutter/packages/flutter_tools/lib/src/web/chrome.dart
+```
+3. Find '--disable-extensions'
+4. Add '--disable-web-security',
+
 ```
 flutter run -d chrome --web-port=4200 --web-renderer=html
 ```
 
 This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
 # Regenerate the stubs
-
-
-# Installation protoc compiler
+## Installation protoc compiler
 * Download binary from [here](https://github.com/protocolbuffers/protobuf/releases)
 * unzip to /usr/lib/protoc-xxxx
 * > ln -s /usr/lib/protoc-xxxx protoc
 * edit /etc/profile
     * add PROTOC_PATH pointing to /usr/lib/protoc and export it
     * add $PROTOC_HOME/bin in PATH
-# Installation protoc web compiler
+## Installation protoc web compiler
 * Download binary from [here](https://github.com/grpc/grpc-web/releases)
 
 ```sh
@@ -55,3 +56,4 @@ $ protoc --dart_out=grpc:lib/grpc_stub/ -I./protos ./protos/*.proto google/proto
 $ mkdir -p js/dist/proto
 $ protoc -I . echo.proto --js_out=import_style=commonjs:./js/dist/proto --grpc-web_out=import_style=commonjs,mode=grpcwebtext:./js/dist/proto
 ```
+
