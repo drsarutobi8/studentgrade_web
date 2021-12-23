@@ -13,12 +13,11 @@ class StudentsGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: ListView.builder(itemBuilder: (context, index) {
-        final student = students[index];
-        return StudentThumbnail(student: student);
-      }),
-    );
+    return ListView.builder(
+        itemCount: students.length,
+        itemBuilder: (context, index) {
+          return StudentThumbnail(student: students[index]);
+        });
 
     // Padding(
     //   padding: const EdgeInsets.only(
