@@ -1,4 +1,8 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
+import 'package:fooderlich/models/student_manager.dart';
+import 'package:provider/provider.dart';
 
 import '../grpc_stub/student.pb.dart';
 
@@ -17,24 +21,42 @@ class StudentThumbnail extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Expanded(
-          //   child: ClipRRect(
-          //     //child: Image.asset('${student.dishImage}', fit: BoxFit.cover),
-          //     child: Image.asset('assets/magazine_pics/card_bread.jpg',
-          //         fit: BoxFit.cover),
-          //     borderRadius: BorderRadius.circular(12),
-          //   ),
-          // ),
-          // const SizedBox(height: 10),
-          Text(
-            student.name,
-            maxLines: 1,
-            style: Theme.of(context).textTheme.bodyText1,
+          Row(children: [
+            Text(
+              student.name,
+              maxLines: 1,
+              style: Theme.of(context).textTheme.bodyText1,
+            ),
+            const SizedBox(width: 16.0),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                Provider.of<StudentManager>(context, listen: false)
+                    .deleteStudent(student.schoolId, student.studentId);
+              },
+            )
+          ]),
+          Row(
+            children: [
+              Text('School Id', style: Theme.of(context).textTheme.bodyText1),
+              const SizedBox(width: 5.0),
+              Text(
+                student.schoolId,
+              ),
+              const SizedBox(width: 16.0),
+              Text('Student Id', style: Theme.of(context).textTheme.bodyText1),
+              const SizedBox(width: 5.0),
+              Text(
+                student.studentId,
+              ),
+              const SizedBox(width: 16.0),
+              Text('Age(years)', style: Theme.of(context).textTheme.bodyText1),
+              const SizedBox(width: 5.0),
+              Text(
+                student.age.toString(),
+              ),
+            ],
           ),
-          Text(
-            student.age.toString(),
-            style: Theme.of(context).textTheme.bodyText1,
-          )
         ],
       ),
     );

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:grpc/grpc.dart';
 import 'package:grpc/grpc_or_grpcweb.dart';
-import 'package:openidconnect/openidconnect.dart';
+//import 'package:openidconnect/openidconnect.dart';
 
 import '../grpc_stub/student.pbgrpc.dart';
 import '../grpc_network/client_channel_stub.dart'
@@ -44,16 +44,31 @@ class StudentManager extends ChangeNotifier {
 
   Future<StudentListResponse> listAllStudents() async {
     final listAllReq = StudentListAllRequest.create();
-    print('listAllStudents 1');
     if (_client == null) {
       await initClient();
     } //if
-    final listAllRes = _client!.listAll(listAllReq);
-    print('listAllStudents 2 ${listAllRes.toString()}');
-    var list = null;
-    await listAllRes.whenComplete(() => list = listAllRes.asStream().first);
-    print('listAllStudents 99 list=${list.toString()}');
+    final listAllResResponseFuture = _client!.listAll(listAllReq);
+    var listAllResFuture = null;
+    await listAllResResponseFuture.whenComplete(
+        () => listAllResFuture = listAllResResponseFuture.asStream().first);
+    return listAllResFuture;
+  }
 
-    return list;
+  Future<StudentDeleteResponse> deleteStudent(
+      String schoolId, String studentId) async {
+    final deleteReq = StudentDeleteRequest.create()
+      ..schoolId = schoolId
+      ..studentId = studentId;
+    print('deleteStudent 1 schoolId=$schoolId, studentId=$studentId');
+    if (_client == null) {
+      await initClient();
+    } //if
+    final deleteResResponseFuture = _client!.delete(deleteReq);
+    var deleteResFuture = null;
+    await deleteResResponseFuture.whenComplete(
+        () => deleteResFuture = deleteResResponseFuture.asStream().first);
+    print('deleteStudent 99');
+    notifyListeners();
+    return deleteResFuture;
   }
 }
