@@ -1,10 +1,8 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
-import 'package:fooderlich/models/student_manager.dart';
 import 'package:provider/provider.dart';
 
 import '../grpc_stub/student.pb.dart';
+import '../models/student_manager.dart';
 
 class StudentThumbnail extends StatelessWidget {
   final StudentReadResponse student;
