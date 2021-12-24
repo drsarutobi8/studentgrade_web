@@ -60,6 +60,27 @@ class StudentManager extends ChangeNotifier {
     return listAllResFuture;
   }
 
+  Future<StudentUpdateResponse> updateStudent(String schoolId, String studentId,
+      String name, int age, Gender gender) async {
+    final updateReq = StudentUpdateRequest.create()
+      ..schoolId = schoolId
+      ..studentId = studentId
+      ..name = name
+      ..age = age
+      ..gender = gender;
+    print('updateStudent 1 schoolId=$schoolId, studentId=$studentId');
+    if (_client == null) {
+      await initClient();
+    } //if
+    final updateResResponseFuture = _client!.update(updateReq);
+    var updateResFuture = null;
+    await updateResResponseFuture.whenComplete(
+        () => updateResFuture = updateResResponseFuture.asStream().first);
+    print('updateStudent 99');
+    notifyListeners();
+    return updateResFuture;
+  }
+
   Future<StudentDeleteResponse> deleteStudent(
       String schoolId, String studentId) async {
     final deleteReq = StudentDeleteRequest.create()
