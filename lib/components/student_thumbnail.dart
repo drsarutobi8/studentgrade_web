@@ -29,6 +29,15 @@ class StudentThumbnail extends StatelessWidget {
             ),
             const SizedBox(width: 16.0),
             IconButton(
+              icon: const Icon(Icons.save),
+              onPressed: () {
+                Provider.of<StudentManager>(context, listen: false)
+                    .updateStudent(student.schoolId, student.studentId,
+                        student.name, student.age, student.gender);
+              },
+            ),
+            const SizedBox(width: 16.0),
+            IconButton(
               icon: const Icon(Icons.delete),
               onPressed: () {
                 Provider.of<StudentManager>(context, listen: false)
