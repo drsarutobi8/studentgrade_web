@@ -15,22 +15,26 @@ class StudentsScreen extends StatefulWidget {
 class _StudentsScreenState extends State<StudentsScreen> {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future:
-          Provider.of<StudentManager>(context, listen: false).listAllStudents(),
-      builder: (context, AsyncSnapshot<StudentListResponse> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          final listResponse = snapshot.data;
-          final students = (listResponse != null)
-              ? listResponse.students
-              : <StudentReadResponse>[];
-          print('student size=${students.length}');
-          return StudentsGridView(students: students);
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
+    return Consumer<StudentManager>(
+      builder: (context, manager, child) {
+        return FutureBuilder(
+          future: Provider.of<StudentManager>(context, listen: false)
+              .listAllStudents(),
+          builder: (context, AsyncSnapshot<StudentListResponse> snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              final listResponse = snapshot.data;
+              final students = (listResponse != null)
+                  ? listResponse.students
+                  : <StudentReadResponse>[];
+              print('students size=${students.length}');
+              return StudentsGridView(students: students);
+            } else {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          },
+        );
       },
     );
   }

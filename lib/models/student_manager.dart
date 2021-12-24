@@ -43,14 +43,20 @@ class StudentManager extends ChangeNotifier {
   }
 
   Future<StudentListResponse> listAllStudents() async {
+    print('listAllStudents 1');
     final listAllReq = StudentListAllRequest.create();
+    print('listAllStudents 2');
     if (_client == null) {
       await initClient();
     } //if
+    print('listAllStudents 3');
+
     final listAllResResponseFuture = _client!.listAll(listAllReq);
+    print('listAllStudents 4');
     var listAllResFuture = null;
     await listAllResResponseFuture.whenComplete(
         () => listAllResFuture = listAllResResponseFuture.asStream().first);
+    print('listAllStudents 99');
     return listAllResFuture;
   }
 
